@@ -1,0 +1,24 @@
+--comment here
+BEGIN;
+SET LOCAL ROLE 'web_anon';
+SET LOCAL "request.jwt.claim.role" = 'web_anon';
+SET LOCAL "request.header.host" = 'localhost:3000';
+SET LOCAL "request.header.user-agent" = 'HTTPie/0.9.9';
+SET LOCAL "request.header.accept-encoding" = 'gzip, deflate';
+SET LOCAL "request.header.accept" = '/';
+SET LOCAL "request.header.connection" = 'keep-alive';
+
+WITH pg_source AS (SELECT "api"."stubs"."uid"
+                   FROM "api"."stubs"
+                   WHERE "api"."stubs"."id" = '1' :: UNKNOWN   ) SELECT
+                                                                   NULL                                AS total_result_set,
+                                                                   pg_catalog.count(_postgrest_t)      AS page_total,
+                                                                   ARRAY [] :: TEXT []                 AS header,
+                                                                   coalesce(array_to_json(
+                                                                                array_agg(row_to_json(_postgrest_t))),
+                                                                            '[]') :: CHARACTER VARYING AS body
+                                                                 FROM (SELECT *
+                                                                       FROM pg_source) _postgrest_t;
+
+
+END;
